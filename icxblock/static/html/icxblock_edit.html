@@ -1,0 +1,72 @@
+<div class="wrapper-comp-settings is-active editor-with-buttons" id="settings-tab">
+  <ul class="list-input settings-list">
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="gradingtype">Assignment Type</label>
+        <select class="input setting-input" id="gradingtype" name="gradingtype">
+            {% for grader in gradeTypes %}
+                {% if grader == selectedType %}
+                    <option value="{{ grader }}" selected>{{ grader }}</option>
+                {% else %}
+                    <option value="{{ grader }}">{{ grader }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+      </div>
+      <span class="tip setting-help">Select assignment type defined in Course Grading section on which you want to generate an Intermediate
+Certificate</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="threshold">Success Threshold</label>
+        <input class="input setting-input" min="0" name="threshold" id="threshold" value="{{ threshold }}" type="number"/>
+      </div>
+      <span class="tip setting-help">Enter the percentage to obtain the Intermediate Certificate. Any student with a total score above the success threshold will be able to generate the Intermediate Certificate.</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="title">Certificate Title</label>
+        <input class="input setting-input" name="title" id="title" value="{{ title }}" type="text" />
+      </div>
+      <span class="tip setting-help">Enter the name of your certificate</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="issuedate">Issue Date</label>
+        <input class="input setting-input" name="issuedate" id="issuedate" value="{{ issuedate }}" type="text" />
+      </div>
+      <span class="tip setting-help">Enter the Issue date to appear on certificate. Leave blank to use the quizz completion date.</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="typeoverride">Assignment Type override</label>
+        <input class="input setting-input" name="typeoverride" id="typeoverride" value="{{ typeoverride }}" type="text" />
+      </div>
+      <span class="tip setting-help">Leave blank to use the Assignment type name or provide a different name here.</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="platformname">Platform Name override</label>
+        <input class="input setting-input" name="platformname" id="platformname" value="{{ platformname }}" type="text" />
+      </div>
+      <span class="tip setting-help">Leave blank to use the default platform name or provide a different name here.</span>
+    </li>
+    <li class="field comp-setting-entry is-set">
+      <div class="wrapper-comp-setting">
+        <label class="label setting-label" for="htmltemplate">HTML Template</label>
+        <textarea class="custom-textarea" name="htmltemplate" id="htmltemplate">{{ htmltemplate }}</textarea>
+      </div>
+      <span class="tip setting-help">HTML template to use when generating intermediate certificate. Include style to customise the appearance of the message, including color, font size, etc.</span>
+    </li>
+  </ul>
+  <div class="xblock-actions">
+    <ul>
+      <li class="action-item">
+        <a href="#" class="button action-primary save-button">Save</a>
+      </li>
+      <li class="action-item">
+        <a href="#" class="button cancel-button">Cancel</a>
+      </li>
+    </ul>
+  </div>
+</div>

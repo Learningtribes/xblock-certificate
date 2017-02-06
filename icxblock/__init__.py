@@ -1,0 +1,1 @@
+from .icxblock import CertificateXBlock

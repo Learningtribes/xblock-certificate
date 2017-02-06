@@ -1,0 +1,71 @@
+<div class="icxblock_block">
+    <div class="heading">{{ type }}</div>
+    <div class="xblock-body">
+        {% if success %}
+            <div class="success">
+                <div class="title">
+                    <i class="fa fa-trophy"></i> Félicitations !
+                </div>
+                <div class="message">
+                    <p>Vous avez obtenu avec succès le {{ type }} avec un score de {{ score }} .</p>
+                    <p>Vous pouvez télécharger votre {{ title }} en cliquant sur le bouton ci-dessous.</p>
+                </div>
+                <div>
+                    <button class="download-button">Télécharger</button>
+                </div>
+            </div>
+        {% else %}
+            <div class="fail">
+                <div class="title">
+                    <i class="fa fa-times-circle"></i> {{ title }} non disponible
+                </div>
+                <div class="message">
+                    Votre score de {{ score }} n'est pas suffisant pour obtenir le {{ type }}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script type="text/template" id="print-header-css">
+    <style type="text/css">
+        .print-button {
+            margin: 10px 20px;
+            border-radius: 4px;
+            border:1px solid white;
+            color: #FFF;
+            background: #272c2e;
+            padding: 10px 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .top-header {
+            background: #272c2e;
+        }
+    </style>
+    <style type="text/css" media="print">
+        .dontprint {
+            display: none;
+        }
+    </style>
+</script>
+<script type="text/template" id="print-header">
+    <div class="dontprint top-header">
+        <button type="button" class="print-button" onclick="window.print();"><i class="fa fa-print"></i>Imprimer</button>
+    </div>
+</script>
+<script type="text/template" id="certificate-data">
+    {% autoescape off %}
+    {{pdf}}
+    {% endautoescape %}
+</script>
+{% if staff %}
+<div class="staff">
+    <button class="preview-button">Preview Certificate</button>
+</div>
+<script type="text/template" id="staff-preview">
+    {% autoescape off %}
+    {{pdf}}
+    {% endautoescape %}
+</script>
+{% endif %}

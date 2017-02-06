@@ -1,0 +1,49 @@
+.ui-datepicker-calendar {
+    background: beige;
+}
+
+.custom-textarea {
+    height: 350px;
+    width: 90%;
+    border-radius: 3px;
+}
+
+.title {
+    color: #38a3d5;
+    font-size: 28px;
+}
+
+.title .fa-times-circle {
+    font-size: 36px;
+}
+
+.title .fa-trophy {
+    font-size: 40px;
+}
+
+.message {
+    margin-top: 20px;
+}
+
+.xblock-body {
+    background: #f4f5f7;
+    border-radius: 5px;
+}
+
+.fail, .success {
+    padding: 15px;
+}
+
+.download-button, .preview-button {
+    background: #e9e7e7;
+    padding: 5px 30px;
+    border-radius: 3px;
+    margin-top: 20px;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.heading {
+    font-size: 34px;
+    margin-bottom: 20px;
+}
