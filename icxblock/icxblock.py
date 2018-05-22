@@ -137,7 +137,7 @@ class CertificateXBlock(XBlock):
         scores = []
         grades_summary = None
         try:
-            from courseware.grades import grade
+            from course_widget.grades import grade
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -146,21 +146,23 @@ class CertificateXBlock(XBlock):
                 course = None
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
-                grades_summary = grade(student, self._get_mock_request(student), course, False)
+                grades_summary = grade(student, course)
         except:
             pass
-
         point_earned = 0
         point_possible = 0
         success = False
-        if grades_summary and 'totaled_scores' in grades_summary and self.assignment_type in grades_summary.get('totaled_scores'):
-            scores = grades_summary.get('totaled_scores').get(self.assignment_type)
-            for score, total, graded, section in scores:
-                point_earned += score
-                point_possible += total
 
-            if(point_possible > 0):
-                percentage = (point_earned/point_possible)*100
+        if grades_summary and \
+                'totaled_scores' in grades_summary and \
+                self.assignment_type in grades_summary.get('totaled_scores'):
+            scores = grades_summary.get('totaled_scores').get(self.assignment_type)
+            for score in scores:
+                point_earned += score.earned
+                point_possible += score.possible
+
+            if (point_possible > 0):
+                percentage = (point_earned / point_possible) * 100
                 success = percentage >= self.success_threshold
 
         html_string = self.resource_string("static/html/icxblock.html")
