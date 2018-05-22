@@ -139,9 +139,10 @@ class CertificateXBlock(XBlock):
         The primary view of the CertificateXBlock, shown to students
         when viewing courses.
         """
-        scores = []
+
         grades_summary = None
         try:
+            # we get the grade_summary using course_widget.grades instead of courseware
             from course_widget.grades import grade
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
@@ -154,6 +155,7 @@ class CertificateXBlock(XBlock):
                 grades_summary = grade(student, course)
         except:
             pass
+
         point_earned = 0
         point_possible = 0
         success = False
@@ -162,6 +164,8 @@ class CertificateXBlock(XBlock):
         if grades_summary and \
                 'totaled_scores' in grades_summary and \
                 self.assignment_type in grades_summary.get('totaled_scores'):
+
+            # get the scores related to the assignment_type
             scores = grades_summary.get('totaled_scores').get(self.assignment_type)
             for score in scores:
                 point_earned += score.earned
@@ -188,19 +192,27 @@ class CertificateXBlock(XBlock):
             else:
                 from courseware.models import StudentModule
                 from course_widget.grades import grading_context_for_course
+
+                # we get the sections only related to the assignment type
                 assignment_sections = grading_context_for_course(course).\
                     get('all_graded_sections').get(self.assignment_type)
+
+                # get all the scored blocks of the assignment section
                 blocks = []
                 for element in assignment_sections:
                     blocks += element['scored_descendants']
                 scorable_locations = [block.location for block in blocks]
-                print("locations: ", scorable_locations)
+
+                # The StudentModule keeps student state for a particular
+                # module in a particular course. we get the queryset of all
+                # StudentModules of the blocks with the same assignment type
                 scores_qset = StudentModule.objects.filter(
                     student_id=student.id,
                     course_id=course.id,
                     module_state_key__in=set(scorable_locations),
                 )
                 time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
+                # The latest time of user submit answer
                 certificate_issue_date = time_list[0]
 
             certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
