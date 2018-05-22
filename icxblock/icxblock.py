@@ -1,7 +1,6 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
-import datetime
 from django.template import Context, Template
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
@@ -19,6 +18,12 @@ class CertificateXBlock(XBlock):
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
 
+    display_name = String(
+        display_name="Display Name",
+        help="",
+        default="icxblock",
+        scope=Scope.content,
+    )
     assignment_type = String(help="", default="", scope=Scope.content)
     success_threshold = Integer(help="", default=0, scope=Scope.content)
     title = String(help="", default="", scope=Scope.content)
@@ -177,11 +182,10 @@ class CertificateXBlock(XBlock):
             # else:
             #     suffix = ["st", "nd", "rd"][day % 10 - 1]
             # date_string = date.strftime('%B {}{} %Y'.format(day, suffix))
-            certificate_issue_date = None
+
             if self.issue_date:
                 certificate_issue_date = self.issue_date
             else:
-                from courseware.model_data import FieldDataCache, ScoresClient
                 from courseware.models import StudentModule
                 from course_widget.grades import grading_context_for_course
                 assignment_sections = grading_context_for_course(course).\
@@ -190,6 +194,7 @@ class CertificateXBlock(XBlock):
                 for element in assignment_sections:
                     blocks += element['scored_descendants']
                 scorable_locations = [block.location for block in blocks]
+                print("locations: ", scorable_locations)
                 scores_qset = StudentModule.objects.filter(
                     student_id=student.id,
                     course_id=course.id,
@@ -198,9 +203,7 @@ class CertificateXBlock(XBlock):
                 time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
                 certificate_issue_date = time_list[0]
 
-
-            if certificate_issue_date:
-                certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
+            certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
