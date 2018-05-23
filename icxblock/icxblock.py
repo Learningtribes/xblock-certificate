@@ -26,7 +26,7 @@ class CertificateXBlock(XBlock):
     )
     assignment_type = String(help="", default="", scope=Scope.content)
     success_threshold = Integer(help="", default=0, scope=Scope.content)
-    title = String(help="", default="", scope=Scope.content)
+    title = String(help="", default="Intermediate Certificate", scope=Scope.content)
     issue_date = String(help="", default="", scope=Scope.content)
     assignment_type_override = String(help="", default="", scope=Scope.content)
     platform_name_override = String(help="", default="", scope=Scope.content)
@@ -226,7 +226,15 @@ class CertificateXBlock(XBlock):
                                          score=percentage,
                                          threshold=self.success_threshold)
         elif self.runtime.user_is_staff:
-            pdf_html = None
+            pdf_string = self.html_template
+            mytemplate = MakoTemplate(pdf_string)
+            pdf_html = mytemplate.render(issue_date=self.issue_date,
+                                         certificate_title=self.title,
+                                         full_name=student.profile.name,
+                                         assignment_type=self.assignment_type_override or self.assignment_type,
+                                         platform_name=self.platform_name_override,
+                                         score=0,
+                                         threshold=self.success_threshold)
 
         html = template.render(Context({
             "success": success,
