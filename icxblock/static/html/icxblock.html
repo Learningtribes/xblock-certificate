@@ -7,11 +7,11 @@
                     <i class="fa fa-trophy"></i> Congratulations !
                 </div>
                 <div class="message">
-                    <p>You have successfully obtained the {{ type }} with a score of {{ score }}% .</p>
+                    <p>You have successfully obtained the {{ type }} badge with a score of {{ score }}% .</p>
                     <p>You can download your {{ title }} by clicking the button below.</p>
                 </div>
                 <div>
-                    <button class="download-button">Télécharger</button>
+                    <button class="download-button">Download</button>
                 </div>
             </div>
         {% else %}
@@ -20,7 +20,7 @@
                     <i class="fa fa-times-circle"></i> {{ title }} is unavailable
                 </div>
                 <div class="message">
-                    Your score {{ score }}% is not enough to get the {{ type }}
+                    Your score {{ score }}% is not enough to get the {{ type }} badge
                 </div>
             </div>
         {% endif %}

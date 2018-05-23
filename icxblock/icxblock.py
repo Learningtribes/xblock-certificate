@@ -230,7 +230,7 @@ class CertificateXBlock(XBlock):
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=self.issue_date,
                                          certificate_title=self.title,
-                                         full_name='Test User',
+                                         full_name=student.profile.name,
                                          assignment_type=self.assignment_type_override or self.assignment_type,
                                          platform_name=self.platform_name_override,
                                          score=0,
