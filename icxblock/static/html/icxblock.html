@@ -4,11 +4,11 @@
         {% if success %}
             <div class="success">
                 <div class="title">
-                    <i class="fa fa-trophy"></i> Félicitations !
+                    <i class="fa fa-trophy"></i> Congratulations !
                 </div>
                 <div class="message">
-                    <p>Vous avez obtenu avec succès le {{ type }} avec un score de {{ score }} .</p>
-                    <p>Vous pouvez télécharger votre {{ title }} en cliquant sur le bouton ci-dessous.</p>
+                    <p>You have successfully obtained the {{ type }} with a score of {{ score }}% .</p>
+                    <p>You can download your {{ title }} by clicking the button below.</p>
                 </div>
                 <div>
                     <button class="download-button">Télécharger</button>
@@ -17,10 +17,10 @@
         {% else %}
             <div class="fail">
                 <div class="title">
-                    <i class="fa fa-times-circle"></i> {{ title }} non disponible
+                    <i class="fa fa-times-circle"></i> {{ title }} is unavailable
                 </div>
                 <div class="message">
-                    Votre score de {{ score }} n'est pas suffisant pour obtenir le {{ type }}
+                    Your score {{ score }}% is not enough to get the {{ type }}
                 </div>
             </div>
         {% endif %}

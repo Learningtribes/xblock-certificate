@@ -1,7 +1,6 @@
 """TO-DO: Write a description of what this XBlock is."""
 
 import pkg_resources
-import datetime
 from django.template import Context, Template
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
@@ -19,6 +18,12 @@ class CertificateXBlock(XBlock):
     # Fields are defined on the class.  You can access them in your code as
     # self.<fieldname>.
 
+    display_name = String(
+        display_name="Display Name",
+        help="",
+        default="icxblock",
+        scope=Scope.content,
+    )
     assignment_type = String(help="", default="", scope=Scope.content)
     success_threshold = Integer(help="", default=0, scope=Scope.content)
     title = String(help="", default="", scope=Scope.content)
@@ -134,10 +139,11 @@ class CertificateXBlock(XBlock):
         The primary view of the CertificateXBlock, shown to students
         when viewing courses.
         """
-        scores = []
+
         grades_summary = None
         try:
-            from courseware.grades import grade
+            # we get the grade_summary using course_widget.grades instead of courseware
+            from course_widget.grades import grade
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -146,21 +152,27 @@ class CertificateXBlock(XBlock):
                 course = None
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
-                grades_summary = grade(student, self._get_mock_request(student), course, False)
+                grades_summary = grade(student, course)
         except:
             pass
 
         point_earned = 0
         point_possible = 0
         success = False
-        if grades_summary and 'totaled_scores' in grades_summary and self.assignment_type in grades_summary.get('totaled_scores'):
-            scores = grades_summary.get('totaled_scores').get(self.assignment_type)
-            for score, total, graded, section in scores:
-                point_earned += score
-                point_possible += total
+        percentage = 0
 
-            if(point_possible > 0):
-                percentage = (point_earned/point_possible)*100
+        if grades_summary and \
+                'totaled_scores' in grades_summary and \
+                self.assignment_type in grades_summary.get('totaled_scores'):
+
+            # get the scores related to the assignment_type
+            scores = grades_summary.get('totaled_scores').get(self.assignment_type)
+            for score in scores:
+                point_earned += score.earned
+                point_possible += score.possible
+
+            if (point_possible > 0):
+                percentage = round((point_earned / point_possible) * 100, 2)
                 success = percentage >= self.success_threshold
 
         html_string = self.resource_string("static/html/icxblock.html")
@@ -174,44 +186,61 @@ class CertificateXBlock(XBlock):
             # else:
             #     suffix = ["st", "nd", "rd"][day % 10 - 1]
             # date_string = date.strftime('%B {}{} %Y'.format(day, suffix))
-            certificate_issue_date = None
+
             if self.issue_date:
                 certificate_issue_date = self.issue_date
             else:
-                from courseware.model_data import FieldDataCache
-                from courseware.module_render import get_module_for_descriptor
-                section_descriptors = course.grading_context.get('graded_sections').get(self.assignment_type)
-                for section_descriptor in section_descriptors:
-                    xmodule_descriptors = section_descriptor.get('xmoduledescriptors')
-                    for block in xmodule_descriptors:
-                        field_data_cache = FieldDataCache([block], course.id, student)
-                        block_with_data = get_module_for_descriptor(student, self._get_mock_request(student), block, field_data_cache, course.id)
-                        last_submission_time = block_with_data.fields.get('last_submission_time').read_from(block_with_data)
-                        if last_submission_time:
-                            certificate_issue_date = last_submission_time
+                from courseware.models import StudentModule
+                from course_widget.grades import grading_context_for_course
 
-            if certificate_issue_date:
-                d = datetime.strptime(certificate_issue_date, '%Y-%m-%d %H:%M:%S')
-                certificate_issue_date = d.strftime('%m-%d-%Y')
+                # we get the sections only related to the assignment type
+                assignment_sections = grading_context_for_course(course).\
+                    get('all_graded_sections').get(self.assignment_type)
+
+                # get all the scored blocks of the assignment section
+                blocks = []
+                for element in assignment_sections:
+                    blocks += element['scored_descendants']
+                scorable_locations = [block.location for block in blocks]
+
+                # The StudentModule keeps student state for a particular
+                # module in a particular course. we get the queryset of all
+                # StudentModules of the blocks with the same assignment type
+                scores_qset = StudentModule.objects.filter(
+                    student_id=student.id,
+                    course_id=course.id,
+                    module_state_key__in=set(scorable_locations),
+                )
+                time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
+                # The latest time of user submit answer
+                certificate_issue_date = time_list[0]
+
+            certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
                                          certificate_title=self.title,
                                          full_name=student.profile.name,
                                          assignment_type=self.assignment_type_override or self.assignment_type,
-                                         platform_name=self.platform_name_override, score=point_earned)
+                                         platform_name=self.platform_name_override,
+                                         score=percentage,
+                                         threshold=self.success_threshold)
         elif self.runtime.user_is_staff:
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
-            pdf_html = mytemplate.render(issue_date=self.issue_date, certificate_title=self.title, full_name='Test User',
-                              assignment_type=self.assignment_type_override or self.assignment_type,
-                              platform_name=self.platform_name_override, score=0)
+            pdf_html = mytemplate.render(issue_date=self.issue_date,
+                                         certificate_title=self.title,
+                                         full_name='Test User',
+                                         assignment_type=self.assignment_type_override or self.assignment_type,
+                                         platform_name=self.platform_name_override,
+                                         score=0,
+                                         threshold=self.success_threshold)
 
         html = template.render(Context({
             "success": success,
             "title": self.title,
             "type": self.assignment_type_override or self.assignment_type,
-            "score": point_earned,
+            "score": percentage,
             "pdf": pdf_html,
             "staff": self.runtime.user_is_staff
         }))
