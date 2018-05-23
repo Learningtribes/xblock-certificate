@@ -153,8 +153,8 @@ class CertificateXBlock(XBlock):
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
                 grades_summary = grade(student, course)
-        except:
-            pass
+        except Exception as e:
+            raise e
 
         point_earned = 0
         point_possible = 0
