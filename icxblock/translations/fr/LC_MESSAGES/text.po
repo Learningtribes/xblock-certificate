@@ -25,7 +25,7 @@ msgstr "Téléchargez votre attestation de réussite en cliquant sur le bouton c
 
 # icxblock.html
 msgid "Download"
-msgstr "Téléchargé"
+msgstr "Télécharger"
 
 # icxblock.html
 msgid "{{ title }} is unavailable"
