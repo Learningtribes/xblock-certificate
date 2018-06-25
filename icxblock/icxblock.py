@@ -9,6 +9,7 @@ from xblock.core import XBlock
 from xblock.fields import Scope, String, Integer
 from xblock.fragment import Fragment
 from mako.template import Template as MakoTemplate
+from django.utils.translation import ugettext as _
 
 class CertificateXBlock(XBlock):
     """

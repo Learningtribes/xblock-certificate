@@ -1,0 +1,37 @@
+# Learning by MOOC translation file
+# Copyright (C) 2016 Learning by MOOC
+#
+msgid ""
+msgstr ""
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: fr\n"
+
+
+# icxblock.html
+msgid "Congratulations !"
+msgstr "Félicitations !"
+
+# icxblock.html
+msgid "You have successfully obtained the {{ type }} badge with a score of {{ score }}% ."
+msgstr "Votre score est de {{ score }}%"
+
+
+# icxblock.html
+msgid "You can download your {{ title }} by clicking the button below."
+msgstr "Téléchargez votre attestation de réussite en cliquant sur le bouton ci-dessous."
+
+
+# icxblock.html
+msgid "Download"
+msgstr "Téléchargé"
+
+# icxblock.html
+msgid "{{ title }} is unavailable"
+msgstr "Votre score est de {{ score }}% et ne permet pas de décrocher votre attestation de réussite."
+
+
+# icxblock.html
+msgid "Your score {{ score }}% is not enough to get the {{ type }} badge"
+msgstr "Avez-vous bien utilisé tous vos essais ?"
