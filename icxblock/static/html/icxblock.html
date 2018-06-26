@@ -1,5 +1,5 @@
 <div class="icxblock_block">
-    <div class="heading">{{ type }}</div>
+    <div class="heading">${type}</div>
     <div class="xblock-body">
         {% if success %}
             <div class="success">
@@ -7,8 +7,8 @@
                     <i class="fa fa-trophy"></i>${_("Congratulations !")}
                 </div>
                 <div class="message">
-                    <p>${_("You have successfully obtained the {{ type }} badge with a score of {{ score }}%.").format(type=type, score=score)}</p>
-                    <p>${_("You can download your {{ title }} by clicking the button below.").format(title=title)}</p>
+                    <p>${_("You have successfully obtained the {type} badge with a score of {score}%.").format(type=type, score=score)}</p>
+                    <p>${_("You can download your {title} by clicking the button below.").format(title=title)}</p>
                 </div>
                 <div>
                     <button class="download-button">${_("Download")}</button>
@@ -20,7 +20,7 @@
                     <i class="fa fa-times-circle"></i>${_("{title} is unavailable").format(title=title)}
                 </div>
                 <div class="message">
-                    ${_(“Your score {{ score }}% is not enough to get the {{ type }} badge”).format(score=score, type=type)}
+                    ${_("Your score {score}% is not enough to get the {type} badge").format(score=score, type=type)}
                 </div>
             </div>
         {% endif %}
