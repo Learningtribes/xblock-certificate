@@ -1,5 +1,5 @@
-# Learning by MOOC translation file
-# Copyright (C) 2016 Learning by MOOC
+# Triboo translation file
+# Copyright (C) 2018 Triboo
 #
 msgid ""
 msgstr ""
@@ -10,12 +10,12 @@ msgstr ""
 
 
 # icxblock.html
-msgid "Congratulations !"
+msgid "Congratulations!"
 msgstr "Félicitations !"
 
 # icxblock.html
-msgid "You have successfully obtained the {{ type }} badge with a score of {{ score }}% ."
-msgstr "Votre score est de {{ score }}%"
+msgid "You have successfully obtained the {{ type }} badge with a score of {{ score }}%."
+msgstr "Votre score est de {{ score }}%."
 
 
 # icxblock.html
@@ -28,10 +28,10 @@ msgid "Download"
 msgstr "Télécharger"
 
 # icxblock.html
-msgid "{{ title }} is unavailable"
+msgid "{{ title }} is unavailable."
 msgstr "Votre score est de {{ score }}% et ne permet pas de décrocher votre attestation de réussite."
 
 
 # icxblock.html
-msgid "Your score {{ score }}% is not enough to get the {{ type }} badge"
+msgid "Your score {{ score }}% is not enough to get the {{ type }} badge."
 msgstr "Avez-vous bien utilisé tous vos essais ?"
