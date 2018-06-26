@@ -10,6 +10,8 @@ from xblock.fields import Scope, String, Integer
 from xblock.fragment import Fragment
 from mako.template import Template as MakoTemplate
 
+
+@XBlock.needs('user', 'i18n')
 class CertificateXBlock(XBlock):
     """
     TO-DO: document what your XBlock does.
@@ -175,8 +177,6 @@ class CertificateXBlock(XBlock):
                 percentage = round((point_earned / point_possible) * 100, 2)
                 success = percentage >= self.success_threshold
 
-        html_string = self.resource_string("static/html/icxblock.html")
-        template = Template(html_string)
         pdf_html = None
         if success:
             # date = datetime.datetime.strptime(self.issue_date, "%m/%d/%Y")
@@ -236,14 +236,16 @@ class CertificateXBlock(XBlock):
                                          score=0,
                                          threshold=self.success_threshold)
 
-        html = template.render(Context({
+        html = get_html("static/html/icxblock.html", data={
+            "_": self.ugettext,
             "success": success,
             "title": self.title,
             "type": self.assignment_type_override or self.assignment_type,
             "score": percentage,
             "pdf": pdf_html,
             "staff": self.runtime.user_is_staff
-        }))
+        })
+
         frag = Fragment(html)
         frag.add_css(self.resource_string("static/css/icxblock.css"))
         frag.add_javascript(self.resource_string("static/js/src/icxblock.js"))
@@ -323,3 +325,7 @@ class CertificateXBlock(XBlock):
                 </vertical_demo>
              """),
         ]
+
+def get_html(path, data):
+    tplt = MakoTemplate(pkg_resources.resource_string(__name__, path))
+    return tplt.render_unicode(**data)
