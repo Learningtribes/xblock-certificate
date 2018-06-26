@@ -17,7 +17,7 @@
         % else:
             <div class="fail">
                 <div class="title">
-                    <i class="fa fa-times-circle"></i>${_("{title} is unavailable.").format(title=title)}
+                    <i class="fa fa-times-circle"></i> ${_("{title} is unavailable.").format(title=title)}
                 </div>
                 <div class="message">
                     ${_("Your score {score}% is not enough to get the {type} badge.").format(score=score, type=type)}
@@ -55,17 +55,13 @@
     </div>
 </script>
 <script type="text/template" id="certificate-data">
-    {% autoescape off %}
-    {{pdf}}
-    {% endautoescape %}
+    ${pdf}
 </script>
 % if staff:
 <div class="staff">
     <button class="preview-button">${_("Preview Certificate")}</button>
 </div>
 <script type="text/template" id="staff-preview">
-    {% autoescape off %}
-    {{pdf}}
-    {% endautoescape %}
+    ${pdf}
 </script>
 % endif
