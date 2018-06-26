@@ -17,10 +17,10 @@
         {% else %}
             <div class="fail">
                 <div class="title">
-                    <i class="fa fa-times-circle"></i>${_("{title} is unavailable").format(title=title)}
+                    <i class="fa fa-times-circle"></i>${_("{title} is unavailable.").format(title=title)}
                 </div>
                 <div class="message">
-                    ${_("Your score {score}% is not enough to get the {type} badge").format(score=score, type=type)}
+                    ${_("Your score {score}% is not enough to get the {type} badge.").format(score=score, type=type)}
                 </div>
             </div>
         {% endif %}
