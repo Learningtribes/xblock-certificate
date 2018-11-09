@@ -144,8 +144,8 @@ class CertificateXBlock(XBlock):
 
         grades_summary = None
         try:
-            # we get the grade_summary using course_widget.grades instead of courseware
-            from course_widget.grades import grade
+            # we get the grade_summary using courseware.grades instead of courseware
+            from courseware.grades import grade
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -191,7 +191,7 @@ class CertificateXBlock(XBlock):
                 certificate_issue_date = self.issue_date
             else:
                 from courseware.models import StudentModule
-                from course_widget.grades import grading_context_for_course
+                from courseware.grades import grading_context_for_course
 
                 # we get the sections only related to the assignment type
                 assignment_sections = grading_context_for_course(course).\
