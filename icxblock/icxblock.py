@@ -144,8 +144,8 @@ class CertificateXBlock(XBlock):
 
         grades_summary = None
         try:
-            # we get the grade_summary using courseware.grades instead of courseware
-            from courseware.grades import grade
+            # we get the grade_summary using PersistentCourseGrade instead of old courseware.grades
+            from lms.djangoapps.grades.models import PersistentCourseGrade
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -154,7 +154,7 @@ class CertificateXBlock(XBlock):
                 course = None
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
-                grades_summary = grade(student, course)
+                grades_summary = PersistentCourseGrade.read(student, course)
         except:
             pass
 
@@ -270,7 +270,7 @@ class CertificateXBlock(XBlock):
             course_key = CourseKey.from_string(course_key_string)
             course = self.runtime.modulestore.get_course(course_key)
             if course:
-                grade_types = [type for subgrader, type, weight in course.grader.sections]
+                grade_types = [type for subgrader, type, weight in course.grader.subgraders]
 
         html_string = self.resource_string("static/html/icxblock_edit.html")
         template = Template(html_string)
