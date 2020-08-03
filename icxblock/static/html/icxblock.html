@@ -1,67 +1,69 @@
-<div class="icxblock_block">
-    <div class="heading">${type}</div>
-    <div class="xblock-body">
-        % if success:
-            <div class="success">
-                <div class="title">
-                    <i class="fa fa-trophy"></i>${_("Congratulations!")}
+<div class="icxblock_block_wrapper">
+    <div class="icxblock_block">
+        <div class="heading">${type}</div>
+        <div class="xblock-body">
+            % if success:
+                <div class="success">
+                    <div class="title">
+                        <i class="fa fa-trophy"></i>${_("Congratulations!")}
+                    </div>
+                    <div class="message">
+                        <p>${_("You have successfully obtained the {type} badge with a score of {score}%.").format(type=type, score=score)}</p>
+                        <p>${_("You can download your {title} by clicking the button below.").format(title=title)}</p>
+                    </div>
+                    <div>
+                        <button class="download-button">${_("Download")}</button>
+                    </div>
                 </div>
-                <div class="message">
-                    <p>${_("You have successfully obtained the {type} badge with a score of {score}%.").format(type=type, score=score)}</p>
-                    <p>${_("You can download your {title} by clicking the button below.").format(title=title)}</p>
+            % else:
+                <div class="fail">
+                    <div class="title">
+                        <i class="fa fa-times-circle"></i> ${_("{title} is unavailable.").format(title=title)}
+                    </div>
+                    <div class="message">
+                        ${_("Your score {score}% is not enough to get the {type} badge.").format(score=score, type=type)}
+                    </div>
                 </div>
-                <div>
-                    <button class="download-button">${_("Download")}</button>
-                </div>
-            </div>
-        % else:
-            <div class="fail">
-                <div class="title">
-                    <i class="fa fa-times-circle"></i> ${_("{title} is unavailable.").format(title=title)}
-                </div>
-                <div class="message">
-                    ${_("Your score {score}% is not enough to get the {type} badge.").format(score=score, type=type)}
-                </div>
-            </div>
-        % endif
+            % endif
+        </div>
     </div>
-</div>
-<script type="text/template" id="print-header-css">
-    <style type="text/css">
-        .print-button {
-            margin: 10px 20px;
-            border-radius: 4px;
-            border:1px solid white;
-            color: #FFF;
-            background: #272c2e;
-            padding: 10px 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
+    <script type="text/template" id="print-header-css">
+        <style type="text/css">
+            .print-button {
+                margin: 10px 20px;
+                border-radius: 4px;
+                border:1px solid white;
+                color: #FFF;
+                background: #272c2e;
+                padding: 10px 20px;
+                font-size: 13px;
+                font-weight: 600;
+            }
 
-        .top-header {
-            background: #272c2e;
-        }
-    </style>
-    <style type="text/css" media="print">
-        .dontprint {
-            display: none;
-        }
-    </style>
-</script>
-<script type="text/template" id="print-header">
-    <div class="dontprint top-header">
-        <button type="button" class="print-button" onclick="window.print();"><i class="fa fa-print"></i>Print</button>
+            .top-header {
+                background: #272c2e;
+            }
+        </style>
+        <style type="text/css" media="print">
+            .dontprint {
+                display: none;
+            }
+        </style>
+    </script>
+    <script type="text/template" id="print-header">
+        <div class="dontprint top-header">
+            <button type="button" class="print-button" onclick="window.print();"><i class="fa fa-print"></i>Print</button>
+        </div>
+    </script>
+    <script type="text/template" id="certificate-data">
+        ${pdf}
+    </script>
+    % if staff:
+    <div class="staff">
+        <button class="preview-button">${_("Preview Certificate")}</button>
     </div>
-</script>
-<script type="text/template" id="certificate-data">
-    ${pdf}
-</script>
-% if staff:
-<div class="staff">
-    <button class="preview-button">${_("Preview Certificate")}</button>
+    <script type="text/template" id="staff-preview">
+        ${pdf}
+    </script>
+    % endif
 </div>
-<script type="text/template" id="staff-preview">
-    ${pdf}
-</script>
-% endif
