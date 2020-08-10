@@ -1,27 +1,43 @@
 <div class="icxblock_block_wrapper">
+    <div class="block-header-wrapper ic-header-wrapper">
+        <h3 class="hd hd-3 block-header ic-header" tabindex="-1">
+          ${type}
+        </h3>
+    </div>
+    <div class="block-label ic-label">
+        <span class="fal fa-badge-check"></span>
+        <span class="block-label-text">${_('Intermediate Certificate')}</span>
+    </div>
+    <hr class="sep-line ic-hr">
     <div class="icxblock_block">
-        <div class="heading">${type}</div>
+<!--        <div class="heading hd hd-3 block-header">${type}</div>-->
         <div class="xblock-body">
             % if success:
-                <div class="success">
+                <div class="ic-icon success-icon">
+                    <i class="fa fa-trophy"></i>
+                </div>
+                <div class="success text-body">
                     <div class="title">
-                        <i class="fa fa-trophy"></i>${_("Congratulations!")}
+                        ${_("Congratulations!")}
                     </div>
                     <div class="message">
-                        <p>${_("You have successfully obtained the {type} badge with a score of {score}%.").format(type=type, score=score)}</p>
-                        <p>${_("You can download your {title} by clicking the button below.").format(title=title)}</p>
+                        <p>${_("You successfully completed the {type} badge with a score of {score}%.").format(type=type, score=score)}</p>
+                        <p>${_("You can download your {title} by clicking on the button below.").format(title=title)}</p>
                     </div>
                     <div>
                         <button class="download-button">${_("Download")}</button>
                     </div>
                 </div>
             % else:
-                <div class="fail">
+                <div class="ic-icon fail-icon">
+                    <i class="fa fa-do-not-enter"></i>
+                </div>
+                <div class="fail text-body">
                     <div class="title">
-                        <i class="fa fa-times-circle"></i> ${_("{title} is unavailable.").format(title=title)}
+                        ${_("{title} is not available.").format(title=title)}
                     </div>
                     <div class="message">
-                        ${_("Your score {score}% is not enough to get the {type} badge.").format(score=score, type=type)}
+                        ${_("Your score {score}% is not enough to obtain the {type}.").format(score=score, type=type)}
                     </div>
                 </div>
             % endif

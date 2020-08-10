@@ -144,8 +144,8 @@ class CertificateXBlock(XBlock):
 
         grades_summary = None
         try:
-            # we get the grade_summary using PersistentCourseGrade instead of old courseware.grades
-            from lms.djangoapps.grades.models import PersistentCourseGrade
+            # we get the grade_summary using lms.djangoapps.grades instead of old courseware.grades
+            from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -154,7 +154,8 @@ class CertificateXBlock(XBlock):
                 course = None
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
-                grades_summary = PersistentCourseGrade.read(student, course)
+                grades_summary = CourseGradeFactory().read(student, course).summary
+                print('grades_summary', grades_summary)
         except:
             pass
 
@@ -163,15 +164,21 @@ class CertificateXBlock(XBlock):
         success = False
         percentage = 0
 
+        # replace 'totaled_scores' in grades_summary to 'grade_breakdown'
         if grades_summary and \
-                'totaled_scores' in grades_summary and \
-                self.assignment_type in grades_summary.get('totaled_scores'):
+                'grade_breakdown' in grades_summary and \
+                self.assignment_type in grades_summary.get('grade_breakdown'):
 
             # get the scores related to the assignment_type
-            scores = grades_summary.get('totaled_scores').get(self.assignment_type)
-            for score in scores:
-                point_earned += score.earned
-                point_possible += score.possible
+            score = grades_summary.get('grade_breakdown').get(self.assignment_type)
+
+            # (score.detail) 'Homework = 51.00% of a possible 75.00%'
+            # => (possible_str) '75.00'
+            # => (possible_score) 0.75
+            possible_str = score['detail'].split(' ')[-1].strip('%')[:-1]
+            possible_score = float(possible_str)/100
+            point_earned = score['percent']
+            point_possible = possible_score
 
             if (point_possible > 0):
                 percentage = round((point_earned / point_possible) * 100, 2)
@@ -191,11 +198,11 @@ class CertificateXBlock(XBlock):
                 certificate_issue_date = self.issue_date
             else:
                 from courseware.models import StudentModule
-                from courseware.grades import grading_context_for_course
+                from lms.djangoapps.grades.context import grading_context_for_course
 
                 # we get the sections only related to the assignment type
                 assignment_sections = grading_context_for_course(course).\
-                    get('all_graded_sections').get(self.assignment_type)
+                    get('all_graded_subsections_by_type').get(self.assignment_type)
 
                 # get all the scored blocks of the assignment section
                 blocks = []
@@ -235,6 +242,7 @@ class CertificateXBlock(XBlock):
                                          platform_name=self.platform_name_override,
                                          score=0,
                                          threshold=self.success_threshold)
+
 
         html = get_html("static/html/icxblock.html", data={
             "_": self.ugettext,
@@ -282,7 +290,6 @@ class CertificateXBlock(XBlock):
             "issuedate": self.issue_date,
             "typeoverride": self.assignment_type_override,
             "platformname": self.platform_name_override,
-            "threshold": self.success_threshold,
             "htmltemplate": self.html_template
         }))
         frag = Fragment(html)
