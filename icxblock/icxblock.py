@@ -155,7 +155,6 @@ class CertificateXBlock(XBlock):
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
                 grades_summary = CourseGradeFactory().read(student, course).summary
-                print('grades_summary', grades_summary)
         except:
             pass
 
@@ -195,7 +194,7 @@ class CertificateXBlock(XBlock):
             # date_string = date.strftime('%B {}{} %Y'.format(day, suffix))
 
             if self.issue_date:
-                certificate_issue_date = self.issue_date
+                certificate_issue_date = self.issue_date.replace('/', '-')
             else:
                 from courseware.models import StudentModule
                 from lms.djangoapps.grades.context import grading_context_for_course
@@ -221,8 +220,10 @@ class CertificateXBlock(XBlock):
                 time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
                 # The latest time of user submit answer
                 certificate_issue_date = time_list[0]
+                certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
 
-            certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
+
+            # certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
