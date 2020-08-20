@@ -6,9 +6,11 @@ from django.contrib.auth.models import User
 from django.test.client import RequestFactory
 
 from xblock.core import XBlock
-from xblock.fields import Scope, String, Integer
+from xblock.fields import Scope, String, Integer, Dict
 from xblock.fragment import Fragment
 from mako.template import Template as MakoTemplate
+
+from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
 
 
 @XBlock.needs('user', 'i18n')
@@ -33,6 +35,7 @@ class CertificateXBlock(XBlock):
     assignment_type_override = String(help="", default="", scope=Scope.content)
     platform_name_override = String(help="", default="", scope=Scope.content)
     html_template = String(help="", default="", scope=Scope.content)
+    successful_intermediate_certifate = Dict(default={}, scope=Scope.user_state_summary)
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -135,17 +138,9 @@ class CertificateXBlock(XBlock):
         return self._calculate_score_for_modules(user, course, modules)
 
 
-    # TO-DO: change this view to display your data your own way.
-    def student_view(self, context=None):
-        """
-        The primary view of the CertificateXBlock, shown to students
-        when viewing courses.
-        """
-
+    def get_grades_summary(self):
         grades_summary = None
         try:
-            # we get the grade_summary using lms.djangoapps.grades instead of old courseware.grades
-            from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
             if hasattr(self.runtime, 'course_id'):
                 course = self.runtime.modulestore.get_course(self.runtime.course_id)
             elif hasattr(self.runtime, 'course_entry'):
@@ -154,9 +149,22 @@ class CertificateXBlock(XBlock):
                 course = None
             if course:
                 student = User.objects.prefetch_related("groups").get(id=self.runtime.user_id)
+                # we get the grade_summary using lms.djangoapps.grades.course_grade_factory instead of old courseware.grades
                 grades_summary = CourseGradeFactory().read(student, course).summary
         except:
             pass
+        return grades_summary, course, student
+
+
+    def html_args(self, student=None, course=None):
+        """
+        return pdf_html, success, score(percentage)
+        """
+
+        if student and course:
+            grades_summary = CourseGradeFactory().read(student, course).summary
+        else:
+            grades_summary, course, student = self.get_grades_summary()
 
         point_earned = 0
         point_possible = 0
@@ -224,6 +232,15 @@ class CertificateXBlock(XBlock):
 
 
             # certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
+            successful_ic = {
+                str(self.runtime.user_id): {
+                    'badge': self.assignment_type,
+                    'cohort': None,
+                    'issue_date': certificate_issue_date,
+                }
+            }
+            self.successful_intermediate_certifate.update(successful_ic)
+
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
@@ -233,7 +250,7 @@ class CertificateXBlock(XBlock):
                                          platform_name=self.platform_name_override,
                                          score=percentage,
                                          threshold=self.success_threshold)
-        elif self.runtime.user_is_staff:
+        elif student.is_staff:
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=self.issue_date,
@@ -244,6 +261,16 @@ class CertificateXBlock(XBlock):
                                          score=0,
                                          threshold=self.success_threshold)
 
+        return pdf_html, success, percentage
+
+    # TO-DO: change this view to display your data your own way.
+    def student_view(self, context=None):
+        """
+        The primary view of the CertificateXBlock, shown to students
+        when viewing courses.
+        """
+
+        pdf_html, success, percentage = self.html_args()
 
         html = get_html("static/html/icxblock.html", data={
             "_": self.ugettext,
@@ -333,6 +360,51 @@ class CertificateXBlock(XBlock):
                 </vertical_demo>
              """),
         ]
+
+    def get_report_html(self, user, course_key):
+        pdf_html, success, percentage = self.html_args(user, course_key)
+        script_template = '''
+        <script>
+            window.onload = function () {
+            css = `
+            <style type="text/css">
+                .print-button {
+                    margin: 10px 20px;
+                    border-radius: 4px;
+                    border:1px solid white;
+                    color: #FFF;
+                    background: #272c2e;
+                    padding: 10px 20px;
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+        
+                .top-header {
+                    background: #272c2e;
+                }
+            </style>
+            <style type="text/css" media="print">
+                .dontprint {
+                    display: none;
+                }
+            </style>
+            `
+            header = `
+            <div class="dontprint top-header">
+                <button type="button" class="print-button" onclick="window.print();"><i class="fa fa-print"></i>Print</button>
+            </div>
+            `
+            printHeaderCss = document.createElement('style')
+            printHeader = document.createElement('div')
+            printHeaderCss.innerHTML = css
+            document.querySelector('head').append(printHeaderCss);
+            document.querySelector('body').prepend(printHeader);
+        }
+        </script>
+        '''
+        report_html = pdf_html + script_template
+        return report_html
+
 
 def get_html(path, data):
     tplt = MakoTemplate(pkg_resources.resource_string(__name__, path))
