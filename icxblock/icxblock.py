@@ -35,7 +35,7 @@ class CertificateXBlock(XBlock):
     assignment_type_override = String(help="", default="", scope=Scope.content)
     platform_name_override = String(help="", default="", scope=Scope.content)
     html_template = String(help="", default="", scope=Scope.content)
-    successful_intermediate_certifate = Dict(default={}, scope=Scope.user_state_summary)
+    intermediate_certificate = Dict(default={}, scope=Scope.user_state_summary)
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -235,11 +235,12 @@ class CertificateXBlock(XBlock):
             successful_ic = {
                 str(self.runtime.user_id): {
                     'badge': self.assignment_type,
-                    'cohort': None,
+                    'title': self.title,
                     'issue_date': certificate_issue_date,
+                    'success': 1,
                 }
             }
-            self.successful_intermediate_certifate.update(successful_ic)
+            self.intermediate_certificate.update(successful_ic)
 
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
@@ -250,16 +251,26 @@ class CertificateXBlock(XBlock):
                                          platform_name=self.platform_name_override,
                                          score=percentage,
                                          threshold=self.success_threshold)
-        elif student.is_staff:
-            pdf_string = self.html_template
-            mytemplate = MakoTemplate(pdf_string)
-            pdf_html = mytemplate.render(issue_date=self.issue_date,
-                                         certificate_title=self.title,
-                                         full_name=student.profile.name,
-                                         assignment_type=self.assignment_type_override or self.assignment_type,
-                                         platform_name=self.platform_name_override,
-                                         score=0,
-                                         threshold=self.success_threshold)
+        else:
+            fail_ic = {
+                str(self.runtime.user_id): {
+                    'badge': self.assignment_type,
+                    'title': self.title,
+                    'success': 0,
+                }
+            }
+            self.intermediate_certificate.update(fail_ic)
+
+            if student.is_staff:
+                pdf_string = self.html_template
+                mytemplate = MakoTemplate(pdf_string)
+                pdf_html = mytemplate.render(issue_date=self.issue_date,
+                                             certificate_title=self.title,
+                                             full_name=student.profile.name,
+                                             assignment_type=self.assignment_type_override or self.assignment_type,
+                                             platform_name=self.platform_name_override,
+                                             score=0,
+                                             threshold=self.success_threshold)
 
         return pdf_html, success, percentage
 
