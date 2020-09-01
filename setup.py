@@ -29,7 +29,9 @@ setup(
         'icxblock',
     ],
     install_requires=[
-        'XBlock',
+        'XBlock==1.2.9',
+        'lxml==3.8.0',
+        'web-fragments==0.2.2',
     ],
     entry_points={
         'xblock.v1': [
