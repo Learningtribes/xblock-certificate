@@ -238,6 +238,7 @@ class CertificateXBlock(XBlock):
                     'title': self.title,
                     'issue_date': certificate_issue_date,
                     'success': 1,
+                    'course_id': str(course.id),
                 }
             }
             self.intermediate_certificate.update(successful_ic)
