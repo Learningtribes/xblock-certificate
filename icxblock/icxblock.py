@@ -37,6 +37,8 @@ class CertificateXBlock(XBlock):
     html_template = String(help="", default="", scope=Scope.content)
     intermediate_certificate = Dict(default={}, scope=Scope.user_state_summary)
 
+    has_author_view = True
+
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
@@ -216,6 +218,7 @@ class CertificateXBlock(XBlock):
                 for element in assignment_sections:
                     blocks += element['scored_descendants']
                 scorable_locations = [block.location for block in blocks]
+                print '[scorable_locations]', scorable_locations
 
                 # The StudentModule keeps student state for a particular
                 # module in a particular course. we get the queryset of all
@@ -226,9 +229,13 @@ class CertificateXBlock(XBlock):
                     module_state_key__in=set(scorable_locations),
                 )
                 time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
-                # The latest time of user submit answer
-                certificate_issue_date = time_list[0]
-                certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
+                print '[time_list]', time_list
+                if len(time_list) == 0:
+                    certificate_issue_date = ''
+                else:
+                    # The latest time of user submit answer
+                    certificate_issue_date = time_list[0]
+                    certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
 
 
             # certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
@@ -275,6 +282,30 @@ class CertificateXBlock(XBlock):
 
         return pdf_html, success, percentage
 
+    def author_view(self, context=None):
+        """
+        The primary view of the CertificateXBlock, shown to students
+        when viewing courses.
+        """
+
+        pdf_html, success, percentage = self.html_args()
+
+        html = get_html("static/html/icxblock.html", data={
+            "_": self.ugettext,
+            "success": success,
+            "title": self.title,
+            "type": self.assignment_type_override or self.assignment_type,
+            "score": percentage,
+            "pdf": pdf_html,
+            "staff": self.runtime.user_is_staff
+        })
+
+        frag = Fragment(html)
+        frag.add_css(self.resource_string("static/css/icxblock.css"))
+        frag.add_javascript(self.resource_string("static/js/src/icxblock.js"))
+        frag.initialize_js('CertificateXBlock')
+        return frag
+
     # TO-DO: change this view to display your data your own way.
     def student_view(self, context=None):
         """
@@ -291,7 +322,8 @@ class CertificateXBlock(XBlock):
             "type": self.assignment_type_override or self.assignment_type,
             "score": percentage,
             "pdf": pdf_html,
-            "staff": self.runtime.user_is_staff
+            # "staff": self.runtime.user_is_staff,
+            "staff": False,
         })
 
         frag = Fragment(html)
@@ -375,47 +407,7 @@ class CertificateXBlock(XBlock):
 
     def get_report_html(self, user, course_key):
         pdf_html, success, percentage = self.html_args(user, course_key)
-        script_template = '''
-        <script>
-            window.onload = function () {
-            css = `
-            <style type="text/css">
-                .print-button {
-                    margin: 10px 20px;
-                    border-radius: 4px;
-                    border:1px solid white;
-                    color: #FFF;
-                    background: #272c2e;
-                    padding: 10px 20px;
-                    font-size: 13px;
-                    font-weight: 600;
-                }
-        
-                .top-header {
-                    background: #272c2e;
-                }
-            </style>
-            <style type="text/css" media="print">
-                .dontprint {
-                    display: none;
-                }
-            </style>
-            `
-            header = `
-            <div class="dontprint top-header">
-                <button type="button" class="print-button" onclick="window.print();"><i class="fa fa-print"></i>Print</button>
-            </div>
-            `
-            printHeaderCss = document.createElement('style')
-            printHeader = document.createElement('div')
-            printHeaderCss.innerHTML = css
-            document.querySelector('head').append(printHeaderCss);
-            document.querySelector('body').prepend(printHeader);
-        }
-        </script>
-        '''
-        report_html = pdf_html + script_template
-        return report_html
+        return pdf_html
 
 
 def get_html(path, data):
