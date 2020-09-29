@@ -8,7 +8,8 @@ function CertificateXBlock(runtime, element) {
         var newWindow = window.open();
         newWindow.document.write(html);
         $(newWindow.document).find('head').append(printHeaderCss);
-        $(newWindow.document).find('body').prepend(printHeader)
+        $(newWindow.document).find('body').prepend(printHeader);
+        newWindow.document.close();
     });
 
     $(element).find('.preview-button').click(function() {
@@ -18,7 +19,8 @@ function CertificateXBlock(runtime, element) {
         var newWindow = window.open();
         newWindow.document.write(html);
         $(newWindow.document).find('head').append(printHeaderCss);
-        $(newWindow.document).find('body').prepend(printHeader)
+        $(newWindow.document).find('body').prepend(printHeader);
+        newWindow.document.close();
     });
 
     $(function ($) {
