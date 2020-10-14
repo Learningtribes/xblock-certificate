@@ -4,6 +4,7 @@ import pkg_resources
 from django.template import Context, Template
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
+from util.date_utils import strftime_localized
 
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Integer, Dict
@@ -235,10 +236,8 @@ class CertificateXBlock(XBlock):
                 else:
                     # The latest time of user submit answer
                     certificate_issue_date = time_list[0]
-                    certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
+                    certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
 
-
-            # certificate_issue_date = certificate_issue_date.strftime('%m-%d-%Y')
             successful_ic = {
                 str(self.runtime.user_id): {
                     'badge': self.assignment_type,
