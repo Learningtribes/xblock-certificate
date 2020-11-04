@@ -5,6 +5,7 @@ from django.template import Context, Template
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
 from util.date_utils import strftime_localized
+from datetime import datetime
 
 from xblock.core import XBlock
 from xblock.fields import Scope, String, Integer, Dict
@@ -205,7 +206,8 @@ class CertificateXBlock(XBlock):
             # date_string = date.strftime('%B {}{} %Y'.format(day, suffix))
 
             if self.issue_date:
-                certificate_issue_date = self.issue_date.replace('/', '-')
+                certificate_issue_date = datetime.strptime(self.issue_date, "%m/%d/%Y")
+                certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
             else:
                 from courseware.models import StudentModule
                 from lms.djangoapps.grades.context import grading_context_for_course
@@ -214,23 +216,24 @@ class CertificateXBlock(XBlock):
                 assignment_sections = grading_context_for_course(course).\
                     get('all_graded_subsections_by_type').get(self.assignment_type)
 
+                time_list = []
                 # get all the scored blocks of the assignment section
-                blocks = []
-                for element in assignment_sections:
-                    blocks += element['scored_descendants']
-                scorable_locations = [block.location for block in blocks]
-                print '[scorable_locations]', scorable_locations
+                if assignment_sections:
+                    blocks = []
+                    for element in assignment_sections:
+                        blocks += element['scored_descendants']
+                    scorable_locations = [block.location for block in blocks]
 
-                # The StudentModule keeps student state for a particular
-                # module in a particular course. we get the queryset of all
-                # StudentModules of the blocks with the same assignment type
-                scores_qset = StudentModule.objects.filter(
-                    student_id=student.id,
-                    course_id=course.id,
-                    module_state_key__in=set(scorable_locations),
-                )
-                time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
-                print '[time_list]', time_list
+                    # The StudentModule keeps student state for a particular
+                    # module in a particular course. we get the queryset of all
+                    # StudentModules of the blocks with the same assignment type
+                    scores_qset = StudentModule.objects.filter(
+                        student_id=student.id,
+                        course_id=course.id,
+                        module_state_key__in=set(scorable_locations),
+                    )
+                    time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
+
                 if len(time_list) == 0:
                     certificate_issue_date = ''
                 else:
@@ -271,7 +274,8 @@ class CertificateXBlock(XBlock):
             if student.is_staff:
                 pdf_string = self.html_template
                 mytemplate = MakoTemplate(pdf_string)
-                pdf_html = mytemplate.render(issue_date=self.issue_date,
+                certificate_issue_date = strftime_localized(self.issue_date, 'NUMBERIC_SHORT_DATE_SLASH') if self.issue_date else ''
+                pdf_html = mytemplate.render(issue_date=certificate_issue_date,
                                              certificate_title=self.title,
                                              full_name=student.profile.name,
                                              assignment_type=self.assignment_type_override or self.assignment_type,
