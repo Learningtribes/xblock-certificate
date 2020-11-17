@@ -37,7 +37,6 @@ class CertificateXBlock(XBlock):
     assignment_type_override = String(help="", default="", scope=Scope.content)
     platform_name_override = String(help="", default="", scope=Scope.content)
     html_template = String(help="", default="", scope=Scope.content)
-    intermediate_certificate = Dict(default={}, scope=Scope.user_state_summary)
 
     has_author_view = True
 
@@ -241,17 +240,6 @@ class CertificateXBlock(XBlock):
                     certificate_issue_date = time_list[0]
                     certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
 
-            successful_ic = {
-                str(self.runtime.user_id): {
-                    'badge': self.assignment_type,
-                    'title': self.title,
-                    'issue_date': certificate_issue_date,
-                    'success': 1,
-                    'course_id': str(course.id),
-                }
-            }
-            self.intermediate_certificate.update(successful_ic)
-
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
@@ -262,15 +250,6 @@ class CertificateXBlock(XBlock):
                                          score=percentage,
                                          threshold=self.success_threshold)
         else:
-            fail_ic = {
-                str(self.runtime.user_id): {
-                    'badge': self.assignment_type,
-                    'title': self.title,
-                    'success': 0,
-                }
-            }
-            self.intermediate_certificate.update(fail_ic)
-
             if student.is_staff:
                 pdf_string = self.html_template
                 mytemplate = MakoTemplate(pdf_string)
