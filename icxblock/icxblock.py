@@ -25,7 +25,6 @@ from student.models import (
 )
 
 
-
 @XBlock.needs('user', 'i18n')
 class CertificateXBlock(XBlock):
     """
