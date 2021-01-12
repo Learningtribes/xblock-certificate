@@ -191,10 +191,10 @@ class CertificateXBlock(XBlock):
         training = CofidisSalespersonTraining.objects.none()
 
         try:
-            salesperson = CofidisSalesperson.objects.filter(
+            salesperson = CofidisSalesperson.objects.get(
                 user_id=student.id,
                 salesperson_id=F('main_salesperson_id')
-            ).first()
+            )
 
             try:
                 training = CofidisSalespersonTraining.objects.get(
@@ -204,7 +204,7 @@ class CertificateXBlock(XBlock):
             except CofidisSalespersonTraining.DoesNotExist:
                 pass
 
-        except CofidisSalesperson.DoesNotExist:
+        except CofidisSalesperson.DoesNotExist, CofidisSalesperson.MultipleObjectsReturned:
             pass
 
         point_earned = 0
