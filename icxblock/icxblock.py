@@ -188,7 +188,7 @@ class CertificateXBlock(XBlock):
         except CofidisTrainingCode.DoesNotExist:
             pass
 
-        training = CofidisSalespersonTraining.objects.none()
+        training = None
 
         try:
             salesperson = CofidisSalesperson.objects.get(
@@ -233,7 +233,7 @@ class CertificateXBlock(XBlock):
                 success = percentage >= self.success_threshold
 
         pdf_html = None
-        if training.success_date:
+        if training and training.success_date:
             if self.issue_date:
                 certificate_issue_date = datetime.strptime(self.issue_date, "%m/%d/%Y")
             else:
