@@ -4,6 +4,7 @@ import pkg_resources
 from django.template import Context, Template
 from django.contrib.auth.models import User
 from django.test.client import RequestFactory
+from django.db.models import F
 from util.date_utils import strftime_localized
 from datetime import datetime
 
@@ -13,6 +14,16 @@ from xblock.fragment import Fragment
 from mako.template import Template as MakoTemplate
 
 from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
+from student.models import (
+    CourseEnrollment,
+    UserProfile,
+    CofidisPartner,
+    CofidisSalesperson,
+    CofidisSalespersonTraining,
+    CofidisSalespersonTrainingArchive,
+    CofidisTrainingCode
+)
+
 
 
 @XBlock.needs('user', 'i18n')
@@ -169,6 +180,35 @@ class CertificateXBlock(XBlock):
         else:
             grades_summary, course, student = self.get_grades_summary()
 
+        training_code = ''
+        try:
+            training_code = CofidisTrainingCode.objects.get(
+                course_id=course.id,
+                grading_rule_name=self.assignment_type
+            ).training_code
+        except CofidisTrainingCode.DoesNotExist:
+            pass
+
+        training = CofidisSalespersonTraining.objects.none()
+
+        try:
+            salespersons = CofidisSalesperson.objects.filter(
+                user_id=student.id,
+                salesperson_id=F('main_salesperson_id')
+            )
+
+            salesperson = salespersons[0]
+            try:
+                training = CofidisSalespersonTraining.objects.get(
+                    salesperson=salesperson,
+                    training_code=training_code,
+                )
+            except CofidisSalespersonTraining.DoesNotExist:
+                pass
+
+        except CofidisSalesperson.DoesNotExist:
+            pass
+
         point_earned = 0
         point_possible = 0
         success = False
@@ -195,50 +235,12 @@ class CertificateXBlock(XBlock):
                 success = percentage >= self.success_threshold
 
         pdf_html = None
-        if success:
-            # date = datetime.datetime.strptime(self.issue_date, "%m/%d/%Y")
-            # day = int(date.strftime("%d"))
-            # if 4 <= day <= 20 or 24 <= day <= 30:
-            #     suffix = "th"
-            # else:
-            #     suffix = ["st", "nd", "rd"][day % 10 - 1]
-            # date_string = date.strftime('%B {}{} %Y'.format(day, suffix))
-
+        if training.success_date:
             if self.issue_date:
                 certificate_issue_date = datetime.strptime(self.issue_date, "%m/%d/%Y")
-                certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
             else:
-                from courseware.models import StudentModule
-                from lms.djangoapps.grades.context import grading_context_for_course
-
-                # we get the sections only related to the assignment type
-                assignment_sections = grading_context_for_course(course).\
-                    get('all_graded_subsections_by_type').get(self.assignment_type)
-
-                time_list = []
-                # get all the scored blocks of the assignment section
-                if assignment_sections:
-                    blocks = []
-                    for element in assignment_sections:
-                        blocks += element['scored_descendants']
-                    scorable_locations = [block.location for block in blocks]
-
-                    # The StudentModule keeps student state for a particular
-                    # module in a particular course. we get the queryset of all
-                    # StudentModules of the blocks with the same assignment type
-                    scores_qset = StudentModule.objects.filter(
-                        student_id=student.id,
-                        course_id=course.id,
-                        module_state_key__in=set(scorable_locations),
-                    )
-                    time_list = scores_qset.values_list('modified', flat=True).order_by('-modified')
-
-                if len(time_list) == 0:
-                    certificate_issue_date = ''
-                else:
-                    # The latest time of user submit answer
-                    certificate_issue_date = time_list[0]
-                    certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
+                certificate_issue_date = training.success_date
+            certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
 
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
