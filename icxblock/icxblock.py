@@ -191,12 +191,11 @@ class CertificateXBlock(XBlock):
         training = CofidisSalespersonTraining.objects.none()
 
         try:
-            salespersons = CofidisSalesperson.objects.filter(
+            salesperson = CofidisSalesperson.objects.filter(
                 user_id=student.id,
                 salesperson_id=F('main_salesperson_id')
-            )
+            ).first()
 
-            salesperson = salespersons[0]
             try:
                 training = CofidisSalespersonTraining.objects.get(
                     salesperson=salesperson,
