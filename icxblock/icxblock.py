@@ -179,34 +179,6 @@ class CertificateXBlock(XBlock):
         else:
             grades_summary, course, student = self.get_grades_summary()
 
-        training_code = ''
-        try:
-            training_code = CofidisTrainingCode.objects.get(
-                course_id=course.id,
-                grading_rule_name=self.assignment_type
-            ).training_code
-        except CofidisTrainingCode.DoesNotExist:
-            pass
-
-        training = None
-
-        try:
-            salesperson = CofidisSalesperson.objects.get(
-                user_id=student.id,
-                salesperson_id=F('main_salesperson_id')
-            )
-
-            try:
-                training = CofidisSalespersonTraining.objects.get(
-                    salesperson=salesperson,
-                    training_code=training_code,
-                )
-            except CofidisSalespersonTraining.DoesNotExist:
-                pass
-
-        except CofidisSalesperson.DoesNotExist, CofidisSalesperson.MultipleObjectsReturned:
-            pass
-
         point_earned = 0
         point_possible = 0
         success = False
@@ -233,13 +205,31 @@ class CertificateXBlock(XBlock):
                 success = percentage >= self.success_threshold
 
         pdf_html = None
-        if training and training.success_date:
+        if success:
             if self.issue_date:
                 certificate_issue_date = datetime.strptime(self.issue_date, "%m/%d/%Y")
             else:
-                certificate_issue_date = training.success_date
-            certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH')
+                training_code = ''
+                training = None
+                try:
+                    training_code = CofidisTrainingCode.objects.get(
+                        course_id=course.id,
+                        grading_rule_name=self.assignment_type
+                    ).training_code
+                    salesperson = CofidisSalesperson.objects.get(
+                        user_id=student.id,
+                        salesperson_id=F('main_salesperson_id')
+                    )
+                    training = CofidisSalespersonTraining.objects.get(
+                        salesperson=salesperson,
+                        training_code=training_code,
+                    )
+                except (CofidisTrainingCode.DoesNotExist, CofidisSalespersonTraining.DoesNotExist,
+                    CofidisSalesperson.DoesNotExist, CofidisSalesperson.MultipleObjectsReturned):
+                    pass
+                certificate_issue_date = training.success_date if training and training.success_date else None
 
+            certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH') if certificate_issue_date else ''
             pdf_string = self.html_template
             mytemplate = MakoTemplate(pdf_string)
             pdf_html = mytemplate.render(issue_date=certificate_issue_date,
