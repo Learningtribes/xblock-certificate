@@ -15,12 +15,8 @@ from mako.template import Template as MakoTemplate
 
 from lms.djangoapps.grades.course_grade_factory import CourseGradeFactory
 from student.models import (
-    CourseEnrollment,
-    UserProfile,
-    CofidisPartner,
     CofidisSalesperson,
     CofidisSalespersonTraining,
-    CofidisSalespersonTrainingArchive,
     CofidisTrainingCode
 )
 
