@@ -205,8 +205,6 @@ class CertificateXBlock(XBlock):
             if self.issue_date:
                 certificate_issue_date = datetime.strptime(self.issue_date, "%m/%d/%Y")
             else:
-                training_code = ''
-                training = None
                 try:
                     training_code = CofidisTrainingCode.objects.get(
                         course_id=course.id,
@@ -220,10 +218,10 @@ class CertificateXBlock(XBlock):
                         salesperson=salesperson,
                         training_code=training_code,
                     )
+                    certificate_issue_date = training.success_date
                 except (CofidisTrainingCode.DoesNotExist, CofidisSalespersonTraining.DoesNotExist,
                     CofidisSalesperson.DoesNotExist, CofidisSalesperson.MultipleObjectsReturned):
-                    pass
-                certificate_issue_date = training.success_date if training and training.success_date else None
+                    certificate_issue_date = None
 
             certificate_issue_date = strftime_localized(certificate_issue_date, 'NUMBERIC_SHORT_DATE_SLASH') if certificate_issue_date else ''
             pdf_string = self.html_template
