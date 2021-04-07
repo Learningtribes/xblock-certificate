@@ -25,5 +25,13 @@ function CertificateXBlockStudio(runtime, element) {
     $(function ($) {
         /* Here's where you'd do things on page load. */
         $( "#issuedate" ).datepicker();
+
+        if (LearningTribes && LearningTribes.QuestionMark) {
+            $wrappers = $(element).find('.list-input .field .question-mark-wrapper')
+            $wrappers.each(function(i, wrapper){
+                new LearningTribes.QuestionMark(wrapper)
+            })
+        }
+
     });
 }
