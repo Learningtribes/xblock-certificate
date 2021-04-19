@@ -3,6 +3,9 @@ function CertificateXBlockStudio(runtime, element) {
 
     $(element).find('.cancel-button').click(function() {
         runtime.notify('cancel', {});
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
     });
 
     $(element).find('.save-button').bind('click', function(e) {
