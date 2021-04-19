@@ -5,7 +5,7 @@ function CertificateXBlockStudio(runtime, element) {
         runtime.notify('cancel', {});
     });
 
-    $(element).find('.save-button').bind('click', function() {
+    $(element).find('.save-button').bind('click', function(e) {
         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
         var data = {
             gradingtype: $(element).find('#gradingtype').val(),
@@ -20,6 +20,9 @@ function CertificateXBlockStudio(runtime, element) {
         $.post(handlerUrl, JSON.stringify(data)).done(function(response) {
           runtime.notify('save', {state: 'end'});
         });
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
     });
 
     $(function ($) {
