@@ -1,7 +1,7 @@
 /* Javascript for CertificateXBlock. */
 function CertificateXBlockStudio(runtime, element) {
 
-    $(element).find('.cancel-button').click(function() {
+    $(element).find('.cancel-button').click(function(e) {
         runtime.notify('cancel', {});
         e.stopPropagation();
         e.preventDefault();
