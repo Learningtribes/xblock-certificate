@@ -27,7 +27,7 @@ class CertificateXBlock(XBlock):
     display_name = String(
         display_name="Display Name",
         help="",
-        default="icxblock",
+        default="Intermediate Certificate",
         scope=Scope.content,
     )
     assignment_type = String(help="", default="", scope=Scope.content)
