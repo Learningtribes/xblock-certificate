@@ -1,8 +1,9 @@
+{% load i18n %}
 <div class="wrapper-comp-settings is-active editor-with-buttons" id="settings-tab">
   <ul class="list-input settings-list">
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="gradingtype">Assignment Type</label>
+        <label class="label setting-label" for="gradingtype">{% trans "Assignment Type" %}</label>
         <select class="input setting-input" id="gradingtype" name="gradingtype">
             {% for grader in gradeTypes %}
                 {% if grader == selectedType %}
@@ -15,65 +16,65 @@
           <span class="question-mark-wrapper" data-title="Select assignment type defined in Course Grading section on which you want to generate an Intermediate
 Certificate"></span>
       </div>
-      <span class="tip setting-help">Select assignment type defined in Course Grading section on which you want to generate an Intermediate
-Certificate</span>
+      <span class="tip setting-help">{% trans "Select assignment type defined in Course Grading section on which you want to generate an Intermediate
+Certificate" %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="threshold">Success Threshold</label>
+        <label class="label setting-label" for="threshold">{% trans "Success Threshold" %}</label>
         <input class="input setting-input" min="0" name="threshold" id="threshold" value="{{ threshold }}" type="number"/>
           <span class="question-mark-wrapper" data-title="Enter the percentage to obtain the Intermediate Certificate. Any student with a total score above the success threshold will be able to generate the Intermediate Certificate."></span>
       </div>
-      <span class="tip setting-help">Enter the percentage to obtain the Intermediate Certificate. Any student with a total score above the success threshold will be able to generate the Intermediate Certificate.</span>
+      <span class="tip setting-help">{% trans "Enter the percentage to obtain the Intermediate Certificate. Any student with a total score above the success threshold will be able to generate the Intermediate Certificate." %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="title">Certificate Title</label>
+        <label class="label setting-label" for="title">{% trans "Certificate Title" %}</label>
         <input class="input setting-input" name="title" id="title" value="{{ title }}" type="text" />
           <span class="question-mark-wrapper" data-title="Enter the name of your certificate"></span>
       </div>
-      <span class="tip setting-help">Enter the name of your certificate</span>
+      <span class="tip setting-help">{% trans "Enter the name of your certificate" %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="issuedate">Issue Date</label>
+        <label class="label setting-label" for="issuedate">{% trans "Issue Date" %}</label>
         <input class="input setting-input" name="issuedate" id="issuedate" value="{{ issuedate }}" type="text" />
           <span class="question-mark-wrapper" data-title="Enter the Issue date to appear on certificate. Leave blank to use the quizz completion date."></span>
       </div>
-      <span class="tip setting-help">Enter the Issue date to appear on certificate. Leave blank to use the quizz completion date.</span>
+      <span class="tip setting-help">{% trans "Enter the Issue date to appear on certificate. Leave blank to use the quizz completion date." %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="typeoverride">Assignment Type override</label>
+        <label class="label setting-label" for="typeoverride">{% trans "Assignment Type override" %}</label>
         <input class="input setting-input" name="typeoverride" id="typeoverride" value="{{ typeoverride }}" type="text" />
           <span class="question-mark-wrapper" data-title="Leave blank to use the Assignment type name or provide a different name here."></span>
       </div>
-      <span class="tip setting-help">Leave blank to use the Assignment type name or provide a different name here.</span>
+      <span class="tip setting-help">{% trans "Leave blank to use the Assignment type name or provide a different name here." %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="platformname">Platform Name override</label>
+        <label class="label setting-label" for="platformname">{% trans "Platform Name override" %}</label>
         <input class="input setting-input" name="platformname" id="platformname" value="{{ platformname }}" type="text" />
           <span class="question-mark-wrapper" data-title="Leave blank to use the default platform name or provide a different name here."></span>
       </div>
-      <span class="tip setting-help">Leave blank to use the default platform name or provide a different name here.</span>
+      <span class="tip setting-help">{% trans "Leave blank to use the default platform name or provide a different name here." %}</span>
     </li>
     <li class="field comp-setting-entry is-set">
       <div class="wrapper-comp-setting">
-        <label class="label setting-label" for="htmltemplate">HTML Template</label>
+        <label class="label setting-label" for="htmltemplate">{% trans "HTML Template" %}</label>
         <textarea class="custom-textarea" name="htmltemplate" id="htmltemplate">{{ htmltemplate }}</textarea>
           <span class="question-mark-wrapper" data-title="HTML template to use when generating intermediate certificate. Include style to customise the appearance of the message, including color, font size, etc."></span>
       </div>
-      <span class="tip setting-help">HTML template to use when generating intermediate certificate. Include style to customise the appearance of the message, including color, font size, etc.</span>
+      <span class="tip setting-help">{% trans "HTML template to use when generating intermediate certificate. Include style to customise the appearance of the message, including color, font size, etc." %}</span>
     </li>
   </ul>
   <div class="xblock-actions">
     <ul>
       <li class="action-item">
-        <a href="#" class="button cancel-button">Cancel</a>
+        <a href="#" class="button cancel-button">{% trans "Cancel" %}</a>
       </li>
       <li class="action-item">
-        <a href="#" class="button action-primary save-button">Save</a>
+        <a href="#" class="button action-primary save-button">{% trans "Save" %}</a>
       </li>
     </ul>
   </div>
