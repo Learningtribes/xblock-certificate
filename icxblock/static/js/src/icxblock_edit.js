@@ -1,11 +1,14 @@
 /* Javascript for CertificateXBlock. */
 function CertificateXBlockStudio(runtime, element) {
 
-    $(element).find('.cancel-button').click(function() {
+    $(element).find('.cancel-button').click(function(e) {
         runtime.notify('cancel', {});
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
     });
 
-    $(element).find('.save-button').bind('click', function() {
+    $(element).find('.save-button').bind('click', function(e) {
         var handlerUrl = runtime.handlerUrl(element, 'studio_submit');
         var data = {
             gradingtype: $(element).find('#gradingtype').val(),
@@ -20,10 +23,21 @@ function CertificateXBlockStudio(runtime, element) {
         $.post(handlerUrl, JSON.stringify(data)).done(function(response) {
           runtime.notify('save', {state: 'end'});
         });
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
     });
 
     $(function ($) {
         /* Here's where you'd do things on page load. */
         $( "#issuedate" ).datepicker();
+
+        if (LearningTribes && LearningTribes.QuestionMark) {
+            $wrappers = $(element).find('.list-input .field .question-mark-wrapper')
+            $wrappers.each(function(i, wrapper){
+                new LearningTribes.QuestionMark(wrapper)
+            })
+        }
+
     });
 }
