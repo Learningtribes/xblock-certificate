@@ -8,7 +8,7 @@ function CertificateXBlock(runtime, element) {
         var newWindow = window.open();
         newWindow.document.write(html);
         $(newWindow.document).find('head').append(printHeaderCss);
-        $(newWindow.document).find('body').prepend(printHeader);
+        newWindow.document.body.innerHTML = printHeader + newWindow.document.body.innerHTML;
         newWindow.document.close();
     });
 
@@ -19,7 +19,7 @@ function CertificateXBlock(runtime, element) {
         var newWindow = window.open();
         newWindow.document.write(html);
         $(newWindow.document).find('head').append(printHeaderCss);
-        $(newWindow.document).find('body').prepend(printHeader);
+        newWindow.document.body.innerHTML = printHeader + newWindow.document.body.innerHTML;
         newWindow.document.close();
     });
 
